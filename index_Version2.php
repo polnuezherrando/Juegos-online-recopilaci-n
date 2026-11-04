@@ -1,0 +1,30 @@
+<?php
+$documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? __DIR__;
+$logDirectory = dirname($documentRoot) . '/private';
+
+if (!is_dir($logDirectory) && !mkdir($logDirectory, 0700, true) && !is_dir($logDirectory)) {
+    error_log('No se pudo crear el directorio de registros.');
+} else {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'desconocida';
+    $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'desconocida';
+    $timestamp = gmdate('Y-m-d H:i:s') . ' UTC';
+
+    file_put_contents(
+        $logDirectory . '/visitas.log',
+        $timestamp . ' | ' . $ip . PHP_EOL,
+        FILE_APPEND | LOCK_EX
+    );
+}
+?>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aviso</title>
+</head>
+<body>
+  <p>No se ha podido acceder al sitio web, verifique su conexión.</p>
+  <small>Este sitio registra la dirección IP de las visitas.</small>
+</body>
+</html>
