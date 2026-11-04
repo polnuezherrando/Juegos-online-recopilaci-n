@@ -1,30 +1,29 @@
-<?</html>
-$documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? __DIR__;
-$logDirectory = dirname($documentRoot) . '/private';
+<?php
+// Configuración de rutas simplificada para evitar fallos de permisos
+$logFile = __DIR__ . '/visitas.log';
 
-if (!is_dir($logDirectory) && !mkdir($logDirectory, 0700, true) && !is_dir($logDirectory)) {
-    error_log('No se pudo crear el directorio de registros.');
-} else {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'desconocida';
-    $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'desconocida';
-    $timestamp = gmdate('Y-m-d H:i:s') . ' UTC';
+// Obtener la IP real de la visita de forma segura
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'desconocida';
+$ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'desconocida';
 
-    file_put_contents(
-        $logDirectory . '/visitas.log',
-        $timestamp . ' | ' . $ip . PHP_EOL,
-        FILE_APPEND | LOCK_EX
-    );
-}
+// Obtener la fecha y hora actual en formato UTC
+$timestamp = gmdate('Y-m-d H:i:s') . ' UTC';
+
+// Preparar la línea de texto a guardar
+$logLine = $timestamp . ' | ' . $ip . PHP_EOL;
+
+// Escribir en el archivo (se creará automáticamente si no existe)
+file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
 ?>
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aviso</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Aviso</title>
 </head>
 <body>
-  <p>No se ha podido acceder al sitio web, verifique su conexión.</p>
-  <small>Este sitio registra la dirección IP de las visitas.</small>
+    <p>No se ha podido acceder al sitio web, verifique su conexión.</p>
+    <small>Este sitio registra la dirección IP de las visitas.</small>
 </body>
 </html>
